@@ -30,3 +30,12 @@ data.frame with input dataset, stl components and flag for anomalies
 \description{
 Title
 }
+\examples{
+library(tidyverse)
+set.seed(319)
+n <- 100
+df <- tibble(index = 1:n,
+            x = arima.sim(model = list(0,0,0), n), rand.gen = function(x) rt(x, 4))
+
+anoms <- anomalies(df, "index", "x", stl_list = list(), confidence = 0.95, direction = "both")
+}

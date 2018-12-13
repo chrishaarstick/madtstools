@@ -16,7 +16,7 @@
 #'
 #' @return data.frame with input dataset, stl components and flag for anomalies
 #' @export
-#' @example 
+#' @examples 
 #' library(tidyverse)
 #' set.seed(319)
 #' n <- 100
