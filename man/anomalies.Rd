@@ -2,21 +2,25 @@
 % Please edit documentation in R/anomalies.R
 \name{anomalies}
 \alias{anomalies}
-\title{Title}
+\title{Anomaly Indentification}
 \usage{
-anomalies(df, index = NULL, x = NULL, stl_args = list(),
-  confidence = 0.99, direction = "both")
+anomalies(df, index_var = NULL, x_var = NULL, ts_frequency = 1,
+  stl_args = list(s.window = "periodic"), confidence = 0.99,
+  direction = "both")
 }
 \arguments{
 \item{df}{input data.frame}
 
-\item{index}{optional column name of index variable. default is NULL which
-uses the first column in the input data.frame}
+\item{index_var}{optional column name of index variable. default is NULL
+which uses the first column in the input data.frame}
 
-\item{x}{optional column name of numeric variable to analyze. efault is NULL
-which uses the second column in the input data.frame}
+\item{x_var}{optional column name of numeric variable to analyze. efault is
+NULL which uses the second column in the input data.frame}
 
-\item{stl_args}{list of arguments to pass to \link[stats]{stl} function}
+\item{ts_frequency}{time series frequency. default is 1}
+
+\item{stl_args}{list of arguments to pass to \link[stats]{stl} function.
+s.window argument required - default is `periodic`}
 
 \item{confidence}{anomaly threshold confidence level. higher levels increase
 the anomaly threshold}
@@ -28,14 +32,17 @@ the anomaly threshold}
 data.frame with input dataset, stl components and flag for anomalies
 }
 \description{
-Title
+Function to idendtify anomalies in time series data. Function similar to
+Seasonal ESD approach here : \url{https://arxiv.org/pdf/1704.07706.pdf}
 }
 \examples{
-library(tidyverse)
+library(tibble)
 set.seed(319)
-n <- 100
-df <- tibble(index = 1:n,
-            x = arima.sim(model = list(0,0,0), n), rand.gen = function(x) rt(x, 4))
+ n <- 100
+  df <- tibble(index = 1:n,
+               x = as.numeric(arima.sim(model = list(0,0,0), n),
+                                        rand.gen = function(x) rt(x, 4)))
 
-anoms <- anomalies(df, "index", "x", stl_list = list(), confidence = 0.95, direction = "both")
+anoms <- anomalies(df, "index", "x", ts_frequency = 5, 
+                   confidence = 0.95, direction = "both")
 }

@@ -5,9 +5,8 @@
 library(madtstools)
 library(testthat)
 library(checkmate)
-library(tidyverse)
 library(lubridate)
-
+library(dplyr)
 
 context("anomalies unit tests")
 
@@ -77,7 +76,7 @@ test_that("confidence threshold works as expected", {
                         confidence = .99, direction = "both")
   
   expect_gte(
-    nrow(filter(anom_df1, anomaly == 1)),
-    nrow(filter(anom_df2, anomaly == 1))
+    nrow(dplyr::filter(anom_df1, anomaly == 1)),
+    nrow(dplyr::filter(anom_df2, anomaly == 1))
   )
 })

@@ -12,24 +12,26 @@
 #' @param x_var optional column name of numeric variable to analyze. efault is
 #'   NULL which uses the second column in the input data.frame
 #' @param ts_frequency time series frequency. default is 1
-#' @param stl_args list of arguments to pass to \link[stats]{stl} function
+#' @param stl_args list of arguments to pass to \link[stats]{stl} function.
+#'   s.window argument required - default is `periodic`
 #' @param confidence anomaly threshold confidence level. higher levels increase
 #'   the anomaly threshold
 #' @param direction direction of anomaly idendification. Options are `positive`,
 #'   `negative`, or `both`
 #'
 #' @return data.frame with input dataset, stl components and flag for anomalies
+#' 
 #' @export
 #' @examples
-#' library(tidyverse)
+#' library(tibble)
 #' set.seed(319)
 #'  n <- 100
 #'   df <- tibble(index = 1:n,
 #'                x = as.numeric(arima.sim(model = list(0,0,0), n),
 #'                                         rand.gen = function(x) rt(x, 4)))
 #'
-#' anoms <- anomalies(df, "index", "x", stl_list = list(), confidence = 0.95,
-#' direction = "both")
+#' anoms <- anomalies(df, "index", "x", ts_frequency = 5, 
+#'                    confidence = 0.95, direction = "both")
 anomalies <- function(df,
                       index_var = NULL,
                       x_var = NULL,
@@ -76,7 +78,8 @@ anomalies <- function(df,
   
   # indentify anomalies and return result
   dplyr::mutate(x_anoms, 
-         anomaly = dplyr::case_when(direction == "both" ~ ifelse(abs(resid) > thresh, 1, 0),
-                                    direction == "negative" ~ ifelse(resid < -thresh, 1, 0),
-                                    TRUE ~ ifelse(resid > thresh, 1, 0)))
+                anomaly = dplyr::case_when(
+                  direction == "both" ~ ifelse(abs(resid) > thresh, 1, 0),
+                  direction == "negative" ~ ifelse(resid < -thresh, 1, 0),
+                  TRUE ~ ifelse(resid > thresh, 1, 0)))
 }

@@ -1,18 +1,22 @@
 Package: madtstools
 Title: MadStork Time Series Tools
-Version: 0.0.0.9000
+Version: 0.0.0
 Authors@R: person("Chris", "Haarstick", email = "chrishaarstick@gmail.com", role = c("aut", "cre"))
-Description: Time series functions for analysis and insights  
-Depends: R (>= 3.5.1)
+Description: Time series functions for analysis and insights.
+Depends: R (>= 3.5.0)
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  tidyverse,
+  dplyr,
+  tidyr,
+  tibble,
   magrittr,
   lubridate,
   zoo,
-  checkmate
+  checkmate,
+  stats,
+  utils
 Suggests: 
   testthat
 RoxygenNote: 6.1.0
