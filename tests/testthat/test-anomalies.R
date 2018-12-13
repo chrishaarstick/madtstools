@@ -16,7 +16,7 @@ context("anomalies unit tests")
 set.seed(319)
 n <- 100
 df <- tibble(index = 1:n,
-             x = arima.sim(model = list(0,0,0), n))
+             x = as.numeric(arima.sim(model = list(0,0,0), n)))
 
 # Add Anomalies
 an <- 2
@@ -31,7 +31,53 @@ df$x[neg_anoms_indx] <- runif(an, -6, -4)
 # Unit Tests --------------------------------------------------------------
 
 test_that("postive anomalies identified", {
-  anoms <- anomalies(df, "index", "x", stl_args = list(), confidence = .99, direction = "positive")
+  anom_df <- anomalies(df, "index", "x", ts_frequency = 5,
+                       confidence = .99, direction = "positive")
+  anom_indx <- anom_df %>% 
+    filter(anomaly == 1) %>% 
+    pull(index)
   
-  expect_data_frame(anoms)
+  expect_data_frame(anom_df)
+  expect_subset(pos_anoms_indx, anom_indx)
+})
+
+
+
+test_that("negative anomalies identified", {
+  anom_df <- anomalies(df, "index", "x", ts_frequency = 5,
+                       confidence = .99, direction = "negative")
+  anom_indx <- anom_df %>% 
+    filter(anomaly == 1) %>% 
+    pull(index)
+  
+  expect_data_frame(anom_df)
+  expect_subset(neg_anoms_indx, anom_indx)
+})
+
+
+
+test_that("both direction anomalies identified", {
+  anom_df <- anomalies(df, "index", "x", ts_frequency = 5,
+                       confidence = .99, direction = "both")
+  anom_indx <- anom_df %>% 
+    filter(anomaly == 1) %>% 
+    pull(index)
+  
+  expect_data_frame(anom_df)
+  expect_subset(c(pos_anoms_indx, neg_anoms_indx), anom_indx)
+})
+
+
+test_that("confidence threshold works as expected", {
+  
+  anom_df1 <- anomalies(df, "index", "x", ts_frequency = 5,
+                        confidence = .95, direction = "both")
+  
+  anom_df2 <- anomalies(df, "index", "x", ts_frequency = 5,
+                        confidence = .99, direction = "both")
+  
+  expect_gte(
+    nrow(filter(anom_df1, anomaly == 1)),
+    nrow(filter(anom_df2, anomaly == 1))
+  )
 })
