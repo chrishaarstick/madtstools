@@ -80,3 +80,18 @@ test_that("confidence threshold works as expected", {
     nrow(dplyr::filter(anom_df2, anomaly == 1))
   )
 })
+
+
+test_that("No stl model works as expected", {
+  anom_df <- anomalies(df, "index", "x",
+                       stl_args = NULL,
+                       confidence = .99,
+                       direction = "negative")
+  
+  anom_indx <- anom_df %>% 
+    filter(anomaly == 1) %>% 
+    pull(index)
+  
+  expect_data_frame(anom_df)
+  expect_subset(neg_anoms_indx, anom_indx)
+})
