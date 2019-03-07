@@ -44,7 +44,7 @@ anomalies <- function(df,
   checkmate::assert_string(index_var, na.ok = TRUE)
   checkmate::assert_string(x_var, na.ok = TRUE)
   checkmate::assert_number(ts_frequency, lower = 1)
-  checkmate::assert_list(stl_args)
+  checkmate::assert_list(stl_args, null.ok = TRUE)
   checkmate::assert_number(confidence, lower = .8, upper = .999)
   checkmate::assert_choice(direction, choices = c("positive", "negative", "both"))
   
@@ -55,16 +55,23 @@ anomalies <- function(df,
   if(is.null(index_var)) index <- df[[1]] else index <- df[[index_var]]
   
   
-  # stl decomp
-  x_ts <- ts(data = x, frequency = ts_frequency)
-  x_stl <- do.call("stl", args = modifyList(stl_args, list(x = x_ts)))
-  
-  
-  # extract components
-  x_anoms <- dplyr::bind_cols(
-    dplyr::select_at(df, c(index_var, x_var)), 
-    tibble::as.tibble(x_stl$time.series))
-  
+  # check for stl model args
+  if(! is.null(stl_args)) {
+    
+    # stl decomp
+    x_ts <- ts(data = x, frequency = ts_frequency)
+    x_stl <- do.call("stl", args = modifyList(stl_args, list(x = x_ts)))
+    
+    
+    # extract components
+    x_anoms <- dplyr::bind_cols(
+      dplyr::select_at(df, c(index_var, x_var)), 
+      tibble::as.tibble(x_stl$time.series))
+  } else {
+    x_anoms <- df %>% 
+      dplyr::select_at(c(index_var, x_var)) %>% 
+      dplyr::mutate(remainder = !!rlang::sym(x_var))
+  }
   
   # standarize residual
   x_anoms <- dplyr::mutate(x_anoms, 
